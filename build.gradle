@@ -1,0 +1,57 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id "org.ajoberstar.reckon" version "0.11.0"
+    id "maven-publish"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group 'ru.mineland'
+
+repositories {
+    jcenter()
+    maven { url "https://dl.bintray.com/kotlin/ktor" }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "io.ktor:ktor-server-netty:$ktor_version"
+    compile "io.ktor:ktor-html-builder:$ktor_version"
+    compile "ch.qos.logback:logback-classic:$logback_version"
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodein_version"
+
+    implementation "io.ktor:ktor-locations:$ktor_version"
+
+    testCompile "io.ktor:ktor-server-tests:$ktor_version"
+    testCompile "org.testcontainers:testcontainers:$testcontainers_version"
+
+}
+
+reckon {
+    scopeFromProp()
+    stageFromProp('beta', 'rc', 'final')
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.kotlin
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenKotlin(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
